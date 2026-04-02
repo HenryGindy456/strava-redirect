@@ -29,7 +29,8 @@
             color: #666;
             margin: 10px 0;
         }
-        button {
+        a {
+            display: inline-block;
             background: #ff6b35;
             color: white;
             border: none;
@@ -38,8 +39,9 @@
             font-size: 16px;
             cursor: pointer;
             margin-top: 20px;
+            text-decoration: none;
         }
-        button:hover {
+        a:hover {
             background: #ff5722;
         }
     </style>
@@ -47,8 +49,8 @@
 <body>
     <div class="container">
         <h1>Connecting to Running for Time...</h1>
-        <p id="status">Please wait while we redirect you back to the app.</p>
-        <button id="fallbackButton" style="display: none;" onclick="goBackToApp()">Return to App</button>
+        <p id="status">Tap the button below to return to the app</p>
+        <div id="linkContainer"></div>
     </div>
     
     <script>
@@ -58,7 +60,8 @@
         const state = params.get('state');
         const scope = params.get('scope');
         
-        function buildRedirectUrl() {
+        if (code) {
+            // Build the redirect URL to our iOS app
             let redirectUrl = 'runnningfortime://oauth?code=' + encodeURIComponent(code);
             
             if (state) {
@@ -68,27 +71,17 @@
                 redirectUrl += '&scope=' + encodeURIComponent(scope);
             }
             
-            return redirectUrl;
-        }
-        
-        function goBackToApp() {
-            window.location.href = buildRedirectUrl();
-        }
-        
-        if (code) {
-            // Try to redirect immediately
-            const redirectUrl = buildRedirectUrl();
+            // Create a clickable link instead of auto-redirecting
+            const linkContainer = document.getElementById('linkContainer');
+            const link = document.createElement('a');
+            link.href = redirectUrl;
+            link.textContent = 'Return to Running for Time';
+            linkContainer.appendChild(link);
             
-            // Set a timeout - if redirect doesn't work, show button after 2 seconds
+            // Also try auto-redirect after a delay
             setTimeout(() => {
-                const button = document.getElementById('fallbackButton');
-                const status = document.getElementById('status');
-                button.style.display = 'block';
-                status.textContent = 'If you are not redirected automatically, tap the button below.';
-            }, 2000);
-            
-            // Try the redirect
-            window.location.href = redirectUrl;
+                window.location.href = redirectUrl;
+            }, 500);
         } else {
             // If there's an error, show it
             const error = params.get('error');
