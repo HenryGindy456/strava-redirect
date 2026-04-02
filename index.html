@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Strava Redirect</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <h1>Connecting to Running for Time...</h1>
+    <p>Please wait while we redirect you back to the app.</p>
+    
+    <script>
+        // Get the code and state from URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        const state = params.get('state');
+        const scope = params.get('scope');
+        
+        if (code) {
+            // Build the redirect URL to our iOS app
+            let redirectUrl = 'runnningfortime://oauth?code=' + encodeURIComponent(code);
+            
+            if (state) {
+                redirectUrl += '&state=' + encodeURIComponent(state);
+            }
+            if (scope) {
+                redirectUrl += '&scope=' + encodeURIComponent(scope);
+            }
+            
+            // Redirect to the app
+            window.location.href = redirectUrl;
+        } else {
+            // If there's an error, show it
+            const error = params.get('error');
+            const errorDescription = params.get('error_description');
+            document.body.innerHTML = '<h1>Error</h1><p>' + (error || 'Unknown error') + '</p><p>' + (errorDescription || '') + '</p>';
+        }
+    </script>
+</body>
+</html>
